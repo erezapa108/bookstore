@@ -1,5 +1,8 @@
 const db = require("../config/db");
 
+const bookModel = require("../models/bookModel");
+
+/*
 const getAllBooks = (req, res) => {
     const query = "SELECT * FROM books";
 
@@ -10,6 +13,20 @@ const getAllBooks = (req, res) => {
             });
         }
         res.status(200).json(results);
+    });
+};
+*/
+
+// refactor Get All
+const getAllBooks = (req, res) => {
+    bookModel.findAllBooks((error, results) => {
+        if (error) {
+            return res.status(500).json({
+                message: error.message,
+            });
+        }
+
+        return res.status(200).json(results);
     });
 };
 
