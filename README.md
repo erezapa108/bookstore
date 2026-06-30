@@ -4,15 +4,41 @@ Ini adalah sebuah proyek website toko buku yang saat ini sedang dalam tahap peng
 Proyek ini saya buat untuk mendokumentasikan proses belajar dan sebagai bukti hasil kerja saya dalam
 mempelajari Fullstack Web Development
 
-## status proyek & Fitur
-- [x] **Database configuration**: Installasi server utama menggunakan Express.js.
-- [x] **Server architecture**: Koneksi aman ke database MySQL.
-- [x] **Routing system**: Jalur API dasar untuk navigasi data buku.
-- [x] **Controller Structure**: Pemisahan logika bisnis menggunakan pola arsitektur yang rapi.
-- [x] **Book CRUD Operations**: Fitur tambah, baca, edit, dan hapus data buku oleh admin.
-- [ ] **Authentication & Authorization**: Fitur registrasi login JWT untuk pelanggan dan admin.
-- [ ] **Cart & Transaction System**: Fitur keranjang belanja dan proses chekout buku.
-- [ ] **Frontend Interface**: Halaman depan/interface web toko buku.
+## Gambaran Project
+- **Fitur CRUD**
+- **Pencarian buku**
+- **Tersambung ke database MySQL**
+- **REST API**
+- **USER INTERFACE menggunakan React**
+- **Siap dikembangkan untuk aplikasi android dengan React Native**
+
+## Target Akhir Project
+
+### Frontend
+- Memiliki fitur Login dan register
+- Dashboard
+- CRUD Buku
+- Search
+- Pagination
+- Sorting
+- Upload cover buku
+- Loading & error state
+- Responsive Design
+
+### Backend
+- REST API
+- JWT AUTHENTICATION
+- MIDDLEWARE
+- INPUT VALIDATION
+- FILE UPLOAD
+- MVC STRUCTURE
+- HANDLING ERROR
+- LOGGING
+
+### Database
+- Relasi antar tabel
+- Foreign Key
+- Query yang efisien
 
 ## Teknologi yang digunakan
 - **Runtime**: Node.js
