@@ -1,45 +1,122 @@
-// Mengimport hook useState dari React
-import { useState } from "react";
-
-// hook useEffect
-import { useEffect } from "react";
-
-// import function get Book
-import { getBooks } from "../api/bookApi";
-
-// import BookList
+import { useState, useEffect } from "react";
+import { getBooks, createBook } from "../api/bookApi";
 import BookList from "../components/BookList";
 
-// import BookForm
-import BookForm from "../components/BookForm";
-
-// Membuat komponen Home
+// membuat halaman utama Home.jsx
 function Home() {
-    const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
 
-    useEffect(() => {
-        getBooks()
+  // PERBAIKAN 2: Fungsi fetch data dimasukkan ke dalam useEffect agar lolos sensor ESLint
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await getBooks();
+        setBooks(response.data);
+      } catch (error) {
+        console.error("Gagal memuat buku:", error);
+      }
+    };
 
-        .then((response) => {
-            setBooks(response.data);
-        })
+    fetchBooks();
+  }, []); // Array kosong memastikan fungsi hanya berjalan 1 kali saat halaman dibuka
 
-        .catch((error) => {
-            console.error(error);
-        });
-    }, []);
+  // Fungsi untuk menangani tambah buku baru
+  const handleAddBook = async (e) => {
+    e.preventDefault();
+    try {
+      await createBook({ title, author, price, stock });
+      alert("Buku baru berhasil ditambahkan!");
+      setTitle("");
+      setAuthor("");
+      setPrice("");
+      setStock(""); // Reset form
 
-    return (
-        <div>
-            <h1>Bookstore</h1>
+      // Mengambil ulang data buku terbaru setelah berhasil menambah data
+      const response = await getBooks();
+      setBooks(response.data);
+    } catch (error) {
+    // PERBAIKAN: Menampilkan pesan error asli yang dikirim oleh backend Axios Anda
+    alert(error.response?.data?.message || "Terjadi kesalahan pada sistem.");
+    }
+  };
 
-            <p>Total Buku : {books.length}</p>
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>Bookstore</h1>
+      <p>Total Buku: {books.length}</p>
 
-            <BookForm />
+      {/* Form Tambah Buku Mandiri */}
+      <form
+        onSubmit={handleAddBook}
+        style={{
+          border: "1px solid #ccc",
+          padding: "20px",
+          borderRadius: "6px",
+          marginBottom: "30px",
+          maxWidth: "400px",
+        }}
+      >
+        <h3>Tambah Buku Baru</h3>
+        <input
+          type="text"
+          placeholder="Judul Buku"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+        />
+        <br />
+        <input
+          type="text"
+          placeholder="Penulis"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          required
+          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+        />
+        <br />
+        <input
+          type="number"
+          placeholder="Harga"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+        />
+        <br />
+        <input
+          type="number"
+          placeholder="Stok"
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+          required
+          style={{ width: "100%", marginBottom: "15px", padding: "8px" }}
+        />
+        <br />
+        <button
+          type="submit"
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Tambah Buku
+        </button>
+      </form>
 
-            <BookList books={books} />
-        </div>
-    );
+      <hr />
+      <h2>Daftar Koleksi</h2>
+      <BookList books={books} />
+    </div>
+  );
 }
 
 export default Home;

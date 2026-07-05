@@ -10,3 +10,18 @@ const api = axios.create({
 export const getBooks = () => {
     return api.get("/books"); //mengirim GET request ke endpoint /books
 }
+
+// Mengirim data buku ke backend
+export const createBook = (bookData) => {
+    return api.post("/books", bookData);
+};
+
+// Mengambil data satu buku berdasarkan ID untuk form edit
+export const getBookById = (id) => {
+    return api.get(`/books/${id}`); // mengirim GET ke /books/:id
+};
+
+// Mengirim data perubahan buku ke backend berdasarkan ID
+export const updateBook = (id, bookData) => {
+    return api.put(`/books/${id}`, bookData); // mengirim PUT ke /books/:id
+};
