@@ -1,46 +1,64 @@
 import { useState, useEffect } from "react";
-import { getBooks, createBook } from "../api/bookApi";
+import { getBooks, createBook, updateBook } from "../api/bookApi";
+import BookForm from "../components/BookForm";
 import BookList from "../components/BookList";
 
-// membuat halaman utama Home.jsx
+// Membuat Function Home
 function Home() {
   const [books, setBooks] = useState([]);
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
+  const [form, setForm] = useState({
+    title: "",
+    author: "",
+    price: "",
+    stock: "",
+  });
+  const [editingId, setEditingId] = useState(null); // null = mode tambah
 
-  // PERBAIKAN 2: Fungsi fetch data dimasukkan ke dalam useEffect agar lolos sensor ESLint
+  const fetchBooks = async () => {
+    const response = await getBooks();
+    setBooks(response.data);
+  };
+
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const response = await getBooks();
-        setBooks(response.data);
-      } catch (error) {
-        console.error("Gagal memuat buku:", error);
-      }
-    };
-
-    fetchBooks();
-  }, []); // Array kosong memastikan fungsi hanya berjalan 1 kali saat halaman dibuka
-
-  // Fungsi untuk menangani tambah buku baru
-  const handleAddBook = async (e) => {
-    e.preventDefault();
-    try {
-      await createBook({ title, author, price, stock });
-      alert("Buku baru berhasil ditambahkan!");
-      setTitle("");
-      setAuthor("");
-      setPrice("");
-      setStock(""); // Reset form
-
-      // Mengambil ulang data buku terbaru setelah berhasil menambah data
+    (async () => {
       const response = await getBooks();
       setBooks(response.data);
+    })();
+  }, []);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleEditClick = (book) => {
+    setEditingId(book.id);
+    setForm({
+      title: book.title,
+      author: book.author,
+      price: book.price,
+      stock: book.stock,
+    });
+  };
+
+  const resetForm = () => {
+    setForm({ title: "", author: "", price: "", stock: "" });
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await updateBook(editingId, form);
+        alert("Buku berhasil diperbarui!");
+      } else {
+        await createBook(form);
+        alert("Buku baru berhasil ditambahkan!");
+      }
+      resetForm();
+      await fetchBooks();
     } catch (error) {
-    // PERBAIKAN: Menampilkan pesan error asli yang dikirim oleh backend Axios Anda
-    alert(error.response?.data?.message || "Terjadi kesalahan pada sistem.");
+      alert(error.response?.data?.message || "Terjadi kesalahan pada sistem.");
     }
   };
 
@@ -49,72 +67,16 @@ function Home() {
       <h1>Bookstore</h1>
       <p>Total Buku: {books.length}</p>
 
-      {/* Form Tambah Buku Mandiri */}
-      <form
-        onSubmit={handleAddBook}
-        style={{
-          border: "1px solid #ccc",
-          padding: "20px",
-          borderRadius: "6px",
-          marginBottom: "30px",
-          maxWidth: "400px",
-        }}
-      >
-        <h3>Tambah Buku Baru</h3>
-        <input
-          type="text"
-          placeholder="Judul Buku"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
-        <br />
-        <input
-          type="text"
-          placeholder="Penulis"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
-        <br />
-        <input
-          type="number"
-          placeholder="Harga"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
-        <br />
-        <input
-          type="number"
-          placeholder="Stok"
-          value={stock}
-          onChange={(e) => setStock(e.target.value)}
-          required
-          style={{ width: "100%", marginBottom: "15px", padding: "8px" }}
-        />
-        <br />
-        <button
-          type="submit"
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Tambah Buku
-        </button>
-      </form>
+      <BookForm
+        book={form}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        buttonText={editingId ? "Simpan Perubahan" : "Tambah Buku"}
+      />
 
       <hr />
       <h2>Daftar Koleksi</h2>
-      <BookList books={books} />
+      <BookList books={books} onEdit={handleEditClick} />
     </div>
   );
 }

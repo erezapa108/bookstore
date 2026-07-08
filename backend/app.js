@@ -4,7 +4,7 @@ const cors = require("cors");
 require("./config/db");
 
 const bookRoutes = require("./routes/bookRoutes");
-const router = require("./routes/bookRoutes");
+
 
 const app = express();
 
@@ -24,4 +24,4 @@ app.listen(5000, () => {
     console.log("Server berjalan di port 5000");
 });
 
-module.exports = router;
+module.exports = app;

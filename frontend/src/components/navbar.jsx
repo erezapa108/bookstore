@@ -8,7 +8,7 @@ const Navbar = () => {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "15px 30px",
-        backgroundColor: "#2c3e50",
+        backgroundColor: "#827148",
         color: "white",
         marginBottom: "20px",
       }}
@@ -40,8 +40,8 @@ const Navbar = () => {
             color: "white",
             textDecoration: "none",
             fontSize: "16px",
-            backgroundColor: "#28a745",
-            padding: "5px 12px",
+            backgroundColor: "#A5AF79",
+            padding: "1px 10px",
             borderRadius: "4px",
           }}
         >

@@ -1,7 +1,7 @@
 const BookForm = ({ book, onChange, onSubmit, buttonText }) => {
   return (
     <form onSubmit={onSubmit}>
-
+      
       {/* Judul form dinamis mengikuti teks tombol agar rapi */}
       <h3 style={{ marginBottom: "15px" }}>
         {buttonText === "Simpan Perubahan"
@@ -72,7 +72,7 @@ const BookForm = ({ book, onChange, onSubmit, buttonText }) => {
         type="submit"
         style={{
           padding: "10px 20px",
-          backgroundColor: "#007bff",
+          backgroundColor: "#827148",
           color: "white",
           border: "none",
           borderRadius: "4px",

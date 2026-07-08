@@ -1,6 +1,4 @@
-import { Link } from "react-router-dom";
-
-function BookList({ books }) {
+function BookList({ books, onEdit }) {
   if (books.length === 0) {
     return <p>Belum ada data buku.</p>;
   }
@@ -20,20 +18,20 @@ function BookList({ books }) {
           <p>Penulis: {book.author}</p>
           <p>Harga: Rp {book.price}</p>
           <p>Stok: {book.stock}</p>
-          <Link
-            to={`/edit-book/${book.id}`}
+          <button
+            onClick={() => onEdit(book)}
             style={{
               display: "inline-block",
               marginTop: "10px",
               padding: "6px 12px",
-              backgroundColor: "#007bff",
+              backgroundColor: "#827148",
               color: "white",
               textDecoration: "none",
               borderRadius: "4px",
             }}
           >
             Edit Buku
-          </Link>
+          </button>
         </div>
       ))}
     </div>
