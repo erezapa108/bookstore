@@ -25,3 +25,8 @@ export const getBookById = (id) => {
 export const updateBook = (id, bookData) => {
     return api.put(`/books/${id}`, bookData); // mengirim PUT ke /books/:id
 };
+
+// Menambahkan fungsi deleteBook kedalam bookApi
+export const deleteBook = (id) => {
+    return api.delete(`/books/${id}`);
+};

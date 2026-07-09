@@ -37,9 +37,16 @@ const updateBook = (id, bookData, callback) => {
   db.query(query, [title, author, price, stock, id], callback);
 };
 
+// Fitur delete book menggunakan struktur yang sama seperti UPDATE BOOK menggunakan parameterized query
+const deleteBook = (id, callback) => {
+    const query = "DELETE FROM books WHERE id = ?";
+    db.query(query, [id], callback);
+};
+
 module.exports = {
     findAllBooks,
     findBookById,
     addBook,
-    updateBook
+    updateBook,
+    deleteBook //semula tidak ada deleteBook di dalam export, tambahkan deleteBook
 }

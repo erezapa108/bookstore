@@ -64,7 +64,7 @@ function BookForm({ editingBook, onSubmit }) {
         margin: "0 auto 24px",
         padding: "24px",
         borderRadius: "12px",
-        border: `1px solid ${isEditing ? "#f59e0b" : "#e5e7eb"}`,
+        border: `1px solid ${isEditing ? "#f5b70b" : "#e5e7eb"}`,
         backgroundColor: isEditing ? "#fffbeb" : "#ffffff",
         boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         transition: "background-color 0.2s ease, border-color 0.2s ease",

@@ -1,4 +1,4 @@
-function BookList({ books, onEdit }) {
+function BookList({ books, onEdit, onDelete }) {
   if (books.length === 0) {
     return <p>Belum ada data buku.</p>;
   }
@@ -21,16 +21,18 @@ function BookList({ books, onEdit }) {
           <button
             onClick={() => onEdit(book)}
             style={{
-              display: "inline-block",
-              marginTop: "10px",
-              padding: "6px 12px",
               backgroundColor: "#827148",
               color: "white",
-              textDecoration: "none",
-              borderRadius: "4px",
             }}
           >
             Edit Buku
+          </button>
+
+          <button
+            onClick={() => onDelete(book.id)}
+            style={{ backgroundColor: "#827148", color: "white", marginLeft: "8px" }}
+          >
+            Hapus
           </button>
         </div>
       ))}

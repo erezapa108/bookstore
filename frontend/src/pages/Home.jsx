@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getBooks, createBook, updateBook } from "../api/bookApi";
+import { getBooks, createBook, updateBook, deleteBook } from "../api/bookApi";
 import BookForm from "../components/BookForm";
 import BookList from "../components/BookList";
 
@@ -56,6 +56,25 @@ function Home() {
     }
   };
 
+  const handleDelete = async (id) => {
+    // konfirmasi dulu karena aksi ini tidak dapat dibatalkan
+    const confirmDelete = window.confirm("Apakah anda yakin ingin menghapus buku ini?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteBook(id);
+      await fetchBooks();
+
+      // jika buku yang sedang diedit ternyata yang dihapus,
+      // form harus direset agar tidak submit ke id yang sudah tidak ada
+      if (editingBook !== null && editingBook.id === id) {
+        setEditingBook(null);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Gagal menghapus buku");
+    };
+  }
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Bookstore</h1>
@@ -68,7 +87,7 @@ function Home() {
 
       <hr />
       <h2>Daftar Koleksi</h2>
-      <BookList books={books} onEdit={handleEditClick} />
+      <BookList books={books} onEdit={handleEditClick} onDelete={handleDelete} />
     </div>
   );
 }
