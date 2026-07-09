@@ -6,13 +6,13 @@ import BookList from "../components/BookList";
 // Membuat Function Home
 function Home() {
   const [books, setBooks] = useState([]);
-  const [form, setForm] = useState({
-    title: "",
-    author: "",
-    price: "",
-    stock: "",
-  });
-  const [editingId, setEditingId] = useState(null); // null = mode tambah
+
+  // editingBook menyimpan objek buku yang sedang di edit.
+  // - null                 -> mode "Tambah buku"
+  // - { id, ... }          -> mode "Edit/Simpan Perubahan"
+  // Home tidak perlu tahu detail input form satu-satu,
+  // cukup buku mana yang sedang di edit
+  const [editingBook, setEditingBook] = useState(null);
 
   const fetchBooks = async () => {
     const response = await getBooks();
@@ -20,45 +20,39 @@ function Home() {
   };
 
   useEffect(() => {
-    (async () => {
-      const response = await getBooks();
-      setBooks(response.data);
-    })();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch data saat mount, aman karena setState di dalam fetchBooks terjadi setelah await
+    fetchBooks();
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
+  // Dipanggil saat tombol "Edit Buku" BookList ditekan
+  // Home cukup simpan buku yang dipilih ke editingBook
+  // Pengisian input form akan ditangani oleh useEffect
+  // Karena editingBook dikirim sebagai prop ke sana
   const handleEditClick = (book) => {
-    setEditingId(book.id);
-    setForm({
-      title: book.title,
-      author: book.author,
-      price: book.price,
-      stock: book.stock,
-    });
+    setEditingBook(book);
   };
 
-  const resetForm = () => {
-    setForm({ title: "", author: "", price: "", stock: "" });
-    setEditingId(null);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Dipanggil BookForm saat form di-submit.
+  // formData = data terbaru dari input (dikirim balik lewat prop onSubmit).
+  const handleFormSubmit = async (formData) => {
     try {
-      if (editingId) {
-        await updateBook(editingId, form);
-        alert("Buku berhasil diperbarui!");
+      if (editingBook !== null) {
+        // Mode edit -> PUT ke backend pakai id buku yang sedang di edit
+        await updateBook(editingBook.id, formData);
+        alert("Buku Berhasil Diperbarui")
       } else {
-        await createBook(form);
-        alert("Buku baru berhasil ditambahkan!");
+        // Mode tambah -> POST buku baru
+        await createBook(formData);
+        alert("Buku Berhasil Ditambahkan")
       }
-      resetForm();
-      await fetchBooks();
-    } catch (error) {
-      alert(error.response?.data?.message || "Terjadi kesalahan pada sistem.");
+      // reset mode edit karena editing jadi null
+      // useEffect di BookForm otomatis mengosongkan formnya
+      // dan tombol otomatis kembali menjadi tambah buku
+      setEditingBook(null);
+      await fetchBooks(); //refresh data buku dari backend
+    }
+    catch(error) {
+      alert(error.response?.data?.message || "Terjadi kesalahan pada sistem.")
     }
   };
 
@@ -67,12 +61,10 @@ function Home() {
       <h1>Bookstore</h1>
       <p>Total Buku: {books.length}</p>
 
-      <BookForm
-        book={form}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-        buttonText={editingId ? "Simpan Perubahan" : "Tambah Buku"}
-      />
+      {/* editingBook dikirim sebagai prop supaya BookForm tahu:
+          1) data apa yang harus mengisi input (lewat useEffect di BookForm)
+          2) teks tombol apa yang harus ditampilkan */}
+      <BookForm editingBook={editingBook} onSubmit={handleFormSubmit} />
 
       <hr />
       <h2>Daftar Koleksi</h2>
