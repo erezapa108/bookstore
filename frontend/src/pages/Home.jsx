@@ -13,6 +13,7 @@ function Home() {
   // Home tidak perlu tahu detail input form satu-satu,
   // cukup buku mana yang sedang di edit
   const [editingBook, setEditingBook] = useState(null);
+  const [searchTerm, setSearchTem] = useState("")
 
   const fetchBooks = async () => {
     const response = await getBooks();
@@ -75,6 +76,14 @@ function Home() {
     };
   }
 
+  const filteredBooks = books.filter((book) => {
+    const keyword = searchTerm.toLowerCase();
+    return (
+      book.title.toLowerCase().includes(keyword) ||
+      book.author.toLowerCase().includes(keyword)
+    );
+  });
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Bookstore</h1>
@@ -87,7 +96,16 @@ function Home() {
 
       <hr />
       <h2>Daftar Koleksi</h2>
-      <BookList books={books} onEdit={handleEditClick} onDelete={handleDelete} />
+
+      <input
+      type="text"
+      placeholder="Cari judul buku atau penulis..."
+      value={searchTerm}
+      onChange={(e) => setSearchTem(e.target.value)}
+      style={{ width: "100%", padding: "10px", marginBottom: "16px", boxSizing: "border-box", borderRadius: "6px", border: "1px solid #d1d5db" }}
+      />
+
+      <BookList books={filteredBooks} onEdit={handleEditClick} onDelete={handleDelete} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 function BookList({ books, onEdit, onDelete }) {
   if (books.length === 0) {
-    return <p>Belum ada data buku.</p>;
+    return <p>Tidak ada data buku.</p>;
   }
 
   return (
