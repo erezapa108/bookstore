@@ -18,16 +18,18 @@ const validateBook = (req, res, next) => {
         });
     }
 
-    if (price <= 0) {
+    // cek price: harus ada dan berupa angka, dan harus lebih dari 0
+    if (price === undefined || price === null || isNaN(price) || Number(price) <= 0) {
         return res.status(400).json({
-            message: "Harga tidak boleh kurang dari 0",
+            message: "Harga wajib diisi dengan angka lebih dari 0!",
         });
     }
 
-    if (stock < 0) {
+    // cek stock: harus ada dan harus berupa angka, dan tidak boleh negatif
+    if (stock === undefined || stock === null || isNaN(stock) || Number(stock) < 0) {
         return res.status(400).json({
-            message: "Jumlah stock tidak boleh negatif",
-        });
+            message: "Stock wajib diisi dengan angka, dan tidak boleh negatif",
+        })
     }
 
     next();

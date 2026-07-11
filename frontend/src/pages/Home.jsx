@@ -13,7 +13,7 @@ function Home() {
   // Home tidak perlu tahu detail input form satu-satu,
   // cukup buku mana yang sedang di edit
   const [editingBook, setEditingBook] = useState(null);
-  const [searchTerm, setSearchTem] = useState("")
+  const [searchTem, setSearchTem] = useState("")
 
   const fetchBooks = async () => {
     const response = await getBooks();
@@ -77,7 +77,7 @@ function Home() {
   }
 
   const filteredBooks = books.filter((book) => {
-    const keyword = searchTerm.toLowerCase();
+    const keyword = searchTem.toLowerCase();
     return (
       book.title.toLowerCase().includes(keyword) ||
       book.author.toLowerCase().includes(keyword)
@@ -100,7 +100,7 @@ function Home() {
       <input
       type="text"
       placeholder="Cari judul buku atau penulis..."
-      value={searchTerm}
+      value={searchTem}
       onChange={(e) => setSearchTem(e.target.value)}
       style={{ width: "100%", padding: "10px", marginBottom: "16px", boxSizing: "border-box", borderRadius: "6px", border: "1px solid #d1d5db" }}
       />

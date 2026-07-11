@@ -16,10 +16,7 @@ export const createBook = (bookData) => {
     return api.post("/books", bookData);
 };
 
-// Mengambil data satu buku berdasarkan ID untuk form edit
-export const getBookById = (id) => {
-    return api.get(`/books/${id}`); // mengirim GET ke /books/:id
-};
+
 
 // Mengirim data perubahan buku ke backend berdasarkan ID
 export const updateBook = (id, bookData) => {
