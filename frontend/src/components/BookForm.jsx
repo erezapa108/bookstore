@@ -26,7 +26,7 @@ const styles = {
   },
 };
 
-function BookForm({ editingBook, onSubmit }) {
+function BookForm({ editingBook, resetKey,onSubmit }) {
   const [form, setForm] = useState(emptyForm);
   const isEditing = editingBook !== null; // dipakai berkali-kali, jadi disimpan sebagai variabel
 
@@ -43,7 +43,7 @@ function BookForm({ editingBook, onSubmit }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- reset form saat mode tambah / setelah submit
       setForm(emptyForm);
     }
-  }, [editingBook]);
+  }, [editingBook, resetKey]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
