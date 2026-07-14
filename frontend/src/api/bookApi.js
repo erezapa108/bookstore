@@ -7,9 +7,15 @@ const api = axios.create({
 });
 
 // Fungsi untuk mengambil semua data buku
-export const getBooks = () => {
-    return api.get("/books"); //mengirim GET request ke endpoint /books
-}
+export const getBooks = (page = 1, limit = 10, search = "") => {
+  return api.get("/books", {
+    params: {
+      page,
+      limit,
+      search
+    },
+  });
+};
 
 // Mengirim data buku ke backend
 export const createBook = (bookData) => {

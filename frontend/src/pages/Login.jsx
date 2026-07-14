@@ -30,6 +30,9 @@ const Login = () => {
         borderRadius: "8px",
       }}
     >
+
+      <strong>Mode Demo:</strong> gunakan <code>admin@bookstore.com</code> / <code>admin123</code> untuk mencoba fitur ini.
+
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
         Masuk ke Bookstore
       </h2>

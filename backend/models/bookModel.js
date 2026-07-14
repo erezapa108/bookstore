@@ -1,10 +1,30 @@
 const db = require("../config/db");
 
 // Ambil semua buku dari database
-const findAllBooks = (callback) => {
-    const query = "SELECT * FROM books";
+const findAllBooks = (page, limit, search, callback) => {
+  const offset = (page - 1) * limit;
 
+  if (search) {
+    const query =
+      "SELECT * FROM books WHERE title LIKE ? OR author LIKE ? LIMIT ? OFFSET ?";
+    const keyword = `%${search}%`;
+    db.query(query, [keyword, keyword, limit, offset], callback);
+  } else {
+    const query = "SELECT * FROM books LIMIT ? OFFSET ?";
+    db.query(query, [limit, offset], callback);
+  }
+};
+
+const countAllBooks = (search, callback) => {
+  if (search) {
+    const query =
+      "SELECT COUNT(*) AS total FROM books WHERE title LIKE ? OR author LIKE ?";
+    const keyword = `%${search}%`;
+    db.query(query, [keyword, keyword], callback);
+  } else {
+    const query = "SELECT COUNT(*) AS total FROM books";
     db.query(query, callback);
+  }
 };
 
 // Cari buku berdasarkan ID
@@ -45,8 +65,9 @@ const deleteBook = (id, callback) => {
 
 module.exports = {
     findAllBooks,
+    countAllBooks, //menambahkan countAllBooks di module export
     findBookById,
     addBook,
     updateBook,
-    deleteBook //semula tidak ada deleteBook di dalam export, tambahkan deleteBook
+    deleteBook, //semula tidak ada deleteBook di dalam export, tambahkan deleteBook
 }

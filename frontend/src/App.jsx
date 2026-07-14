@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Navbar from "./components/navbar";
+import ScrollToTopButton from "./components/ScrollToTopButton"; // import baru
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
       </Routes>
+      <ScrollToTopButton />
     </Router>
   );
 }

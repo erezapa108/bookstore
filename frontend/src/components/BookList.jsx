@@ -1,6 +1,6 @@
 function BookList({ books, onEdit, onDelete }) {
   if (books.length === 0) {
-    return <p>Tidak ada data buku.</p>;
+    return <p style={{ color: "#3D3A34" }}>Tidak ada data buku.</p>;
   }
 
   return (
@@ -17,12 +17,13 @@ function BookList({ books, onEdit, onDelete }) {
           style={{
             backgroundColor: "white",
             borderRadius: "10px",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+            boxShadow: "0 1px 4px rgba(61,58,52,0.1)",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
           }}
         >
+          <div style={{ height: "6px", backgroundColor: "#2F6F5E" }} />
           {/* Area cover buku.
               Sekarang: selalu tampil placeholder karena book.cover belum ada.
               Nanti: begitu field book.cover (URL gambar) tersedia dari backend,
@@ -50,7 +51,7 @@ function BookList({ books, onEdit, onDelete }) {
             }}
           >
             <h3
-              style={{ margin: "0 0 8px", fontSize: "17px", color: "#111827" }}
+              style={{ margin: "0 0 8px", fontSize: "17px", color: "#3D3A34" }}
             >
               {book.title}
             </h3>
@@ -66,7 +67,7 @@ function BookList({ books, onEdit, onDelete }) {
                   margin: "0 0 2px",
                   fontSize: "15px",
                   fontWeight: 600,
-                  color: "#111827",
+                  color: "#3D3A34",
                 }}
               >
                 Rp {Number(book.price).toLocaleString("id-ID")}
@@ -75,7 +76,7 @@ function BookList({ books, onEdit, onDelete }) {
                 style={{
                   margin: 0,
                   fontSize: "13px",
-                  color: book.stock > 0 ? "#16a34a" : "#dc2626",
+                  color: book.stock > 0 ? "#2F6F5E" : "#C1533E",
                 }}
               >
                 Stok: {book.stock}
@@ -88,7 +89,7 @@ function BookList({ books, onEdit, onDelete }) {
                 style={{
                   flex: 1,
                   padding: "8px",
-                  backgroundColor: "#A5AF79",
+                  backgroundColor: "#8FAE9C",
                   color: "white",
                   border: "none",
                   borderRadius: "6px",
@@ -103,7 +104,7 @@ function BookList({ books, onEdit, onDelete }) {
                 style={{
                   flex: 1,
                   padding: "8px",
-                  backgroundColor: "#dc2626",
+                  backgroundColor: "#C1533E",
                   color: "white",
                   border: "none",
                   borderRadius: "6px",

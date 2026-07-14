@@ -3,9 +3,34 @@ const bookModel = require("../models/bookModel");
 
 // GET ALL BOOKS
 const getAllBooks = (req, res) => {
-  bookModel.findAllBooks((error, results) => {
-    if (error) return res.status(500).json({ message: error.message });
-    return res.status(200).json(results);
+  // Ambil page & limit dari query URL, contoh: /api/books?page=2&limit=10
+  // Kalau tidak dikirim sama sekali, default ke page 1, limit 10.
+  let page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search || ""; // default string kosong kalau tidak dikirim
+
+  // Guard rail: cegah page/limit bernilai aneh (negatif, 0, atau kelewat besar)
+  if (page < 1) page = 1;
+  if (limit < 1) limit = 15;
+  if (limit > 100) limit = 30; // batas atas, supaya tidak ada yang minta 1 juta baris sekaligus
+
+  // Hitung total dulu, baru ambil datanya -- 2 query terpisah tapi berurutan,
+  // karena totalPages baru bisa dihitung setelah tahu total data
+  bookModel.countAllBooks(search, (countError, countResults) => {
+    if (countError)
+      return res.status(500).json({ message: countError.message });
+
+    const total = countResults[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    bookModel.findAllBooks(page, limit, search, (error, results) => {
+      if (error) return res.status(500).json({ message: error.message });
+
+      return res.status(200).json({
+        data: results,
+        pagination: { page, limit, total, totalPages },
+      });
+    });
   });
 };
 

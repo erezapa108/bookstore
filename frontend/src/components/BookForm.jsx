@@ -9,17 +9,19 @@ const styles = {
     width: "100%",
     padding: "10px 12px",
     boxSizing: "border-box",
-    border: "1px solid #d1d5db",
+    border: "1px solid #DDD6C4",
     borderRadius: "6px",
     fontSize: "14px",
     outline: "none",
+    backgroundColor: "#FBFAF6",
+    color: "#3D3A34",
   },
   label: {
     display: "block",
     marginBottom: "6px",
     fontSize: "13px",
     fontWeight: 600,
-    color: "#374151",
+    color: "#3D3A34",
   },
   field: {
     marginBottom: "16px",
@@ -64,13 +66,13 @@ function BookForm({ editingBook, resetKey,onSubmit }) {
         margin: "0 auto 24px",
         padding: "24px",
         borderRadius: "12px",
-        border: `1px solid ${isEditing ? "#f5b70b" : "#e5e7eb"}`,
-        backgroundColor: isEditing ? "#fffbeb" : "#ffffff",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+        border: `1px solid ${isEditing ? "#F0A868" : "#DDD6C4"}`,
+        backgroundColor: isEditing ? "#FDF3E7" : "#ffffff",
+        boxShadow: "0 1px 3px rgba(61,58,52,0.08)",
         transition: "background-color 0.2s ease, border-color 0.2s ease",
       }}
     >
-      <h3 style={{ marginTop: 0, marginBottom: "18px", color: "#111827" }}>
+      <h3 style={{ marginTop: 0, marginBottom: "18px", color: "#3D3A34" }}>
         {isEditing ? "Ubah Data Buku" : "Tambah Buku Baru"}
       </h3>
 
@@ -133,7 +135,7 @@ function BookForm({ editingBook, resetKey,onSubmit }) {
           style={{
             width: "100%",
             padding: "12px",
-            backgroundColor: isEditing ? "#827148" : "#A5AF79",
+            backgroundColor: isEditing ? "#F0A868" : "#2F6F5E",
             color: "white",
             border: "none",
             borderRadius: "6px",
