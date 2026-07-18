@@ -7,13 +7,9 @@ const api = axios.create({
 });
 
 // Fungsi untuk mengambil semua data buku
-export const getBooks = (page = 1, limit = 10, search = "") => {
+export const getBooks = (page = 1, limit = 10, search = "", signal) => {
   return api.get("/books", {
-    params: {
-      page,
-      limit,
-      search
-    },
+    params: { page, limit, search }, signal, // dikirim ke axios untuk membatalkan request
   });
 };
 

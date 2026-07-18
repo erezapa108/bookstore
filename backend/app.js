@@ -20,8 +20,4 @@ app.get("/", (req, res) => {
     res.send("Backend Bookstore Sedang Berjalan");
 });
 
-app.listen(5000, () => {
-    console.log("Server berjalan di port 5000");
-});
-
 module.exports = app;

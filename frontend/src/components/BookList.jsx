@@ -1,4 +1,12 @@
-function BookList({ books, onEdit, onDelete }) {
+function BookList({ books, onEdit, onDelete, isLoading }) {
+  if (isLoading) {
+    return (
+      <p style={{ textAlign: "center", color: "#3D3A34", paddin: "40px 0" }}>
+        Memuat data buku...
+      </p>
+    )
+  }
+
   if (books.length === 0) {
     return <p style={{ color: "#3D3A34" }}>Tidak ada data buku.</p>;
   }

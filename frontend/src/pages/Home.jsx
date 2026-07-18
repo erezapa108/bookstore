@@ -8,56 +8,84 @@ import Toast from "../components/Toast";
 function Home() {
   const [books, setBooks] = useState([]);
 
-  // editingBook menyimpan objek buku yang sedang di edit.
-  // - null                 -> mode "Tambah buku"
-  // - { id, ... }          -> mode "Edit/Simpan Perubahan"
-  // Home tidak perlu tahu detail input form satu-satu,
-  // cukup buku mana yang sedang di edit
+  /* editingBook menyimpan objek buku yang sedang di edit.
+  - null                 -> mode "Tambah buku"
+  { id, ... }          -> mode "Edit/Simpan Perubahan"
+  Home tidak perlu tahu detail input form satu-satu,
+  cukup buku mana yang sedang di edit */
+
   const [editingBook, setEditingBook] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [toast, setToast] = useState(null);
   const [formResetKey, setFormResetKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   // ref menunjuk ke halaman DOM pembungkus form, digunakan untuk scroll manual
   const formRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   // State baru untuk pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotalBooks] = useState(0)
   const limit = 10; // jumlah data per halaman, bisa dibuat dinamis nanti kalau perlu
 
   const fetchBooks = async (page = currentPage, search = searchTerm) => {
-    const response = await getBooks(page, limit, search);
-    setBooks(response.data.data);
-    setCurrentPage(response.data.pagination.page);
-    setTotalPages(response.data.pagination.totalPages);
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    setIsLoading(true);
+
+    try {
+      const response = await getBooks(page, limit, search, controller.signal);
+      setBooks(response.data.data);
+      setCurrentPage(response.data.pagination.page);
+      setTotalPages(response.data.pagination.totalPages);
+      setTotalBooks(response.data.pagination.total);
+      return response.data.pagination;
+    } catch (error) {
+      // bukan request asli/sengaja dibatalkan bukan error asli
+      if (error.code === "ERR_CANCELED") return;
+      throw error; // error sungguhan
+    } finally {
+      // Finally selalu jalan -- baik request berhasil, gagal, atau dibatalkan. mencegah loading nyangkut jika ada error
+      setIsLoading(false);
+    }
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch data saat mount, aman karena setState di dalam fetchBooks terjadi setelah await
-    fetchBooks(1, "");
-  }, []);
+  const shownCount = Math.min(currentPage * limit, total);
 
-  // useEffect BARU: setiap searchTerm berubah, fetch ulang ke backend,
-  // dan RESET ke halaman 1 -- karena hasil pencarian belum tentu sebanyak data asli,
-  // kalau tetap di halaman 3 misalnya, bisa jadi halaman itu sudah tidak ada lagi
-  // untuk hasil pencarian yang baru.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinkronisasi hasil pencarian dari backend setiap searchTerm berubah
-    fetchBooks(1, searchTerm);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    // cleanup debounce
+    return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Dipanggil saat tombol "Edit Buku" BookList ditekan
-  // Home cukup simpan buku yang dipilih ke editingBook
-  // Pengisian input form akan ditangani oleh useEffect
-  // Karena editingBook dikirim sebagai prop ke sana
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ke backend setiap debouncedSearchTerm berubah
+    fetchBooks(1, debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
+
+  /* Dipanggil saat tombol "Edit Buku" BookList ditekan
+  Home cukup simpan buku yang dipilih ke editingBook
+  Pengisian input form akan ditangani oleh useEffect
+  Karena editingBook dikirim sebagai prop ke sana */
+
   const handleEditClick = (book) => {
     setEditingBook(book);
 
-    // Scroll halaman ke posisi form, dengan animasi halus.
+    /* Scroll halaman ke posisi form, dengan animasi halus.
     // Ini aksi langsung (imperative), dijalankan sekali saat user klik,
     // BUKAN lewat useEffect -- karena ini bukan soal "sinkronisasi state",
-    // tapi respons satu kali terhadap satu event klik.
+    // tapi respons satu kali terhadap satu event klik. */
+
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -91,14 +119,17 @@ function Home() {
 
   const handleDelete = async (id) => {
     // konfirmasi dulu karena aksi ini tidak dapat dibatalkan
-    const confirmDelete = window.confirm(
-      "Apakah anda yakin ingin menghapus buku ini?",
-    );
+    const confirmDelete = window.confirm("Apakah anda yakin ingin menghapus buku ini?",);
     if (!confirmDelete) return;
 
     try {
       await deleteBook(id);
-      await fetchBooks(currentPage);
+      const pagination = await fetchBooks(currentPage);
+
+      if (pagination.page > pagination.totalPages && pagination.totalPages > 0) {
+        await fetchBooks(pagination.totalPages)
+      }
+
       setToast({ message: "Buku berhasil dihapus.", type: "success" });
 
       // jika buku yang sedang diedit ternyata yang dihapus,
@@ -127,9 +158,9 @@ function Home() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div ref={formRef} style={{ padding: "20px" }}>
       <h1 style={{ color: "#2F6F5E" }}>Bookstore Admin</h1>
-      <p style={{ color: "#3D3A34" }}>Total Buku: {books.length}</p>
+      <p style={{ color: "#3D3A34" }}>Total {shownCount}/{total} buku</p>
 
       {/* editingBook dikirim sebagai prop supaya BookForm tahu:
           1) data apa yang harus mengisi input (lewat useEffect di BookForm)
@@ -163,6 +194,7 @@ function Home() {
         books={books}
         onEdit={handleEditClick}
         onDelete={handleDelete}
+        isLoading={isLoading}
       />
 
       {/* Kontrol pagination, taruh di bawah BookList */}
@@ -177,7 +209,7 @@ function Home() {
       >
         <button
           onClick={handlePrevPage}
-          disabled={currentPage <= 1}
+          disabled={currentPage <= 1 || isLoading}
           style={{
             padding: "8px 16px",
             borderRadius: "6px",
@@ -195,7 +227,7 @@ function Home() {
 
         <button
           onClick={handleNextPage}
-          disabled={currentPage >= totalPages}
+          disabled={currentPage >= totalPages || isLoading}
           style={{
             padding: "8px 16px",
             borderRadius: "6px",

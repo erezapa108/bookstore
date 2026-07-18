@@ -7,8 +7,156 @@ const app = require("../app");
 // Kalau pakai database asli, test jadi lambat, butuh setup DB khusus,
 // dan bisa gagal karena alasan yang tidak ada hubungannya dengan kode
 // (misal: koneksi database sedang down).
+jest.mock("../config/db", () => ({}));
 jest.mock("../models/bookModel");
 const bookModel = require("../models/bookModel");
+
+// DESCRIBE BARU UNTUK GET /api/books
+describe("GET /api/books", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("mengembalikan data dengan page & limit default kalau tidak dikirim", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(null, [{ total: 13 }]);
+    });
+    bookModel.findAllBooks.mockImplementation(
+      (page, limit, search, callback) => {
+        callback(null, [{ id: 1, title: "Buku A" }]); // isinya tidak penting, cuma cek strukturnya
+      },
+    );
+
+    const response = await request(app).get("/api/books");
+
+    expect(response.status).toBe(200);
+    expect(response.body.pagination).toEqual({
+      page: 1,
+      limit: 10,
+      total: 13,
+      totalPages: 2,
+    });
+    // Pastikan model dipanggil dengan default yang benar
+    expect(bookModel.findAllBooks).toHaveBeenCalledWith(
+      1,
+      10,
+      "",
+      expect.any(Function),
+    );
+  });
+
+  test("meneruskan page & limit dari query string ke model", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(null, [{ total: 25 }]);
+    });
+    bookModel.findAllBooks.mockImplementation(
+      (page, limit, search, callback) => {
+        callback(null, []);
+      },
+    );
+
+    const response = await request(app).get("/api/books?page=3&limit=5");
+
+    expect(response.status).toBe(200);
+    expect(response.body.pagination).toEqual({
+      page: 3,
+      limit: 5,
+      total: 25,
+      totalPages: 5,
+    });
+    expect(bookModel.findAllBooks).toHaveBeenCalledWith(
+      3,
+      5,
+      "",
+      expect.any(Function),
+    );
+  });
+
+  test("guard rail: page negatif dipaksa jadi 1", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(null, [{ total: 10 }]);
+    });
+    bookModel.findAllBooks.mockImplementation(
+      (page, limit, search, callback) => {
+        callback(null, []);
+      },
+    );
+
+    const response = await request(app).get("/api/books?page=-5");
+
+    expect(response.body.pagination.page).toBe(1);
+  });
+
+  test("guard rail: limit di atas 100 dibatasi ke batas atas", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(null, [{ total: 500 }]);
+    });
+    bookModel.findAllBooks.mockImplementation(
+      (page, limit, search, callback) => {
+        callback(null, []);
+      },
+    );
+
+    const response = await request(app).get("/api/books?limit=99999");
+
+    expect(response.body.pagination.limit).toBeLessThanOrEqual(100);
+  });
+
+  test("meneruskan keyword search ke model", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(null, [{ total: 2 }]);
+    });
+    bookModel.findAllBooks.mockImplementation(
+      (page, limit, search, callback) => {
+        callback(null, [{ id: 1, title: "Laskar Pelangi" }]);
+      },
+    );
+
+    const response = await request(app).get("/api/books?search=laskar");
+
+    expect(response.status).toBe(200);
+    expect(bookModel.countAllBooks).toHaveBeenCalledWith(
+      "laskar",
+      expect.any(Function),
+    );
+    expect(bookModel.findAllBooks).toHaveBeenCalledWith(
+      1,
+      10,
+      "laskar",
+      expect.any(Function),
+    );
+  });
+
+  test("mengembalikan array kosong tanpa error kalau search tidak ketemu", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(null, [{ total: 0 }]);
+    });
+    bookModel.findAllBooks.mockImplementation(
+      (page, limit, search, callback) => {
+        callback(null, []);
+      },
+    );
+
+    const response = await request(app).get("/api/books?search=xxxtidakada");
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toEqual([]);
+    expect(response.body.pagination.total).toBe(0);
+    expect(response.body.pagination.totalPages).toBe(0);
+  });
+
+  test("mengembalikan 500 kalau countAllBooks error", async () => {
+    bookModel.countAllBooks.mockImplementation((search, callback) => {
+      callback(new Error("Koneksi database terputus"), null);
+    });
+
+    const response = await request(app).get("/api/books");
+
+    expect(response.status).toBe(500);
+    // findAllBooks TIDAK BOLEH sampai terpanggil kalau count-nya sudah gagal duluan
+    expect(bookModel.findAllBooks).not.toHaveBeenCalled();
+  });
+});
 
 describe("POST /api/books", () => {
   afterEach(() => {
