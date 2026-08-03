@@ -15,17 +15,46 @@ export const getBooks = (page = 1, limit = 10, search = "", signal) => {
 
 // Mengirim data buku ke backend
 export const createBook = (bookData) => {
-    return api.post("/books", bookData);
+    const token = localStorage.getItem("token"); // Ambil token dari localStorage
+    
+    return api.post(
+        "/books",
+        bookData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, // Sertakan token di header Authorization
+            },
+        }
+    );
 };
 
 
 
 // Mengirim data perubahan buku ke backend berdasarkan ID
 export const updateBook = (id, bookData) => {
-    return api.put(`/books/${id}`, bookData); // mengirim PUT ke /books/:id
+    const token = localStorage.getItem("token"); // Ambil token dari localStorage
+    
+    return api.put(
+        `/books/${id}`,
+        bookData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, // Sertakan token di header Authorization
+            },
+        }
+    );
 };
 
 // Menambahkan fungsi deleteBook kedalam bookApi
 export const deleteBook = (id) => {
-    return api.delete(`/books/${id}`);
+    const token = localStorage.getItem("token"); // Ambil token dari localStorage
+    
+    return api.delete(
+        `/books/${id}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`, // Sertakan token di header Authorization
+            },
+        }
+    );
 };

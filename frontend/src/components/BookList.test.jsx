@@ -14,10 +14,90 @@ const sampleBooks = [
   { id: 2, title: "Bumi Manusia", author: "Pramoedya", price: 60000, stock: 0 },
 ];
 
-describe("BookList", () => {
-  test("menampilkan pesan kalau tidak ada buku", () => {
-    render(<BookList books={[]} onEdit={() => {}} onDelete={() => {}} />);
-    expect(screen.getByText("Tidak ada data buku.")).toBeInTheDocument();
+describe("BookList - error state", () => {
+  test("menampilkan pesan error saat hasError true", () => {
+    render(
+      <BookList
+        books={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        hasError={true}
+        onRetry={() => {}}
+        searchTerm=""
+        onResetSearch={() => {}}
+      />,
+    );
+    expect(screen.getByText("Gagal memuat data buku")).toBeInTheDocument();
+  });
+
+  test("error state diprioritaskan di atas empty state", () => {
+    render(
+      <BookList
+        books={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        hasError={true}
+        onRetry={() => {}}
+        searchTerm=""
+        onResetSearch={() => {}}
+      />,
+    );
+    // pastikan pesan "Belum ada buku" TIDAK ikut muncul bersamaan
+    expect(screen.queryByText("Belum ada buku")).not.toBeInTheDocument();
+  });
+
+  test("tombol 'Coba Lagi' memanggil onRetry saat diklik", async () => {
+    const handleRetry = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <BookList
+        books={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        hasError={true}
+        onRetry={handleRetry}
+        searchTerm=""
+        onResetSearch={() => {}}
+      />,
+    );
+
+    await user.click(screen.getByText("Coba Lagi"));
+    expect(handleRetry).toHaveBeenCalledTimes(1);
+  });
+
+  test("error state tidak muncul saat hasError false meski books kosong", () => {
+    render(
+      <BookList
+        books={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        hasError={false}
+        onRetry={() => {}}
+        searchTerm=""
+        onResetSearch={() => {}}
+      />,
+    );
+    expect(
+      screen.queryByText("Gagal memuat data buku"),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("BookList - empty state", () => {
+  
+  test("menampilkan pesan 'Belum ada buku' saat database kosong tanpa search", () => {
+    render(
+      <BookList
+        books={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        searchTerm="xxxtidakada"
+        onResetSearch={() => {}}
+      />,
+    );
+    expect(screen.getByText('Tidak ada hasil untuk "xxxtidakada"')).toBeInTheDocument();
+    expect(screen.queryByText("Belum ada buku")).not.toBeInTheDocument();
   });
 
   test("menampilkan judul & penulis setiap buku", () => {
@@ -28,6 +108,49 @@ describe("BookList", () => {
     expect(screen.getByText("Andrea Hirata")).toBeInTheDocument();
     expect(screen.getByText("Bumi Manusia")).toBeInTheDocument();
   });
+
+   test("tombol 'Hapus Pencarian' memanggil onResetSearch saat diklik", async () => {
+    const handleReset = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <BookList books={[]} onEdit={() => {}} onDelete={() => {}} searchTerm="xxxtidakada" onResetSearch={handleReset} />
+    );
+
+    await user.click(screen.getByText("Hapus Pencarian"));
+    expect(handleReset).toHaveBeenCalledTimes(1);
+  });
+
+  test("tombol 'Hapus Pencarian' TIDAK muncul saat database memang kosong (bukan hasil search)", () => {
+    render(
+      <BookList
+        books={[]}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        searchTerm=""
+        onResetSearch={() => {}}
+      />,
+    );
+    expect(screen.queryByText("Hapus Pencarian")).not.toBeInTheDocument();
+  });
+
+   test("tombol 'Hapus Pencarian' memanggil onResetSearch saat diklik", async () => {
+     const handleReset = vi.fn();
+     const user = userEvent.setup();
+
+     render(
+       <BookList
+         books={[]}
+         onEdit={() => {}}
+         onDelete={() => {}}
+         searchTerm="xxxtidakada"
+         onResetSearch={handleReset}
+       />,
+     );
+
+     await user.click(screen.getByText("Hapus Pencarian"));
+     expect(handleReset).toHaveBeenCalledTimes(1);
+   });
 
   test("memanggil onEdit dengan buku yang benar saat tombol Edit diklik", async () => {
     const handleEdit = vi.fn(); // mock function, versi Vitest dari jest.fn()

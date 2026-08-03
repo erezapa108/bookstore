@@ -20,6 +20,7 @@ function Home() {
   const [toast, setToast] = useState(null);
   const [formResetKey, setFormResetKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   // ref menunjuk ke halaman DOM pembungkus form, digunakan untuk scroll manual
   const formRef = useRef(null);
@@ -39,6 +40,7 @@ function Home() {
     abortControllerRef.current = controller;
 
     setIsLoading(true);
+    setHasError(false);
 
     try {
       const response = await getBooks(page, limit, search, controller.signal);
@@ -50,6 +52,7 @@ function Home() {
     } catch (error) {
       // bukan request asli/sengaja dibatalkan bukan error asli
       if (error.code === "ERR_CANCELED") return;
+      setHasError(true);
       throw error; // error sungguhan
     } finally {
       // Finally selalu jalan -- baik request berhasil, gagal, atau dibatalkan. mencegah loading nyangkut jika ada error
@@ -69,14 +72,23 @@ function Home() {
   }, [searchTerm]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ke backend setiap debouncedSearchTerm berubah
-    fetchBooks(1, debouncedSearchTerm);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch saat mount, aman karena setState di fetchBooks terjadi setelah await
+    fetchBooks(1, "").catch(() => {}); // errornya sudah ditangani via setHasError di dalam fetchBooks, di sini cukup "tangkap" supaya tidak jadi unhandled rejection
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ulang saat debouncedSearchTerm berubah
+    fetchBooks(1, debouncedSearchTerm).catch(() => {});
   }, [debouncedSearchTerm]);
 
   /* Dipanggil saat tombol "Edit Buku" BookList ditekan
   Home cukup simpan buku yang dipilih ke editingBook
   Pengisian input form akan ditangani oleh useEffect
   Karena editingBook dikirim sebagai prop ke sana */
+
+  const handleResetSearch = () => {
+  setSearchTerm(""); // debounce & useEffect yang sudah ada otomatis fetch ulang dari sini
+};
 
   const handleEditClick = (book) => {
     setEditingBook(book);
@@ -115,6 +127,10 @@ function Home() {
         type: "error",
       });
     }
+  };
+
+  const handleRetry = () => {
+    fetchBooks(currentPage, searchTerm).catch(() => {});
   };
 
   const handleDelete = async (id) => {
@@ -195,6 +211,10 @@ function Home() {
         onEdit={handleEditClick}
         onDelete={handleDelete}
         isLoading={isLoading}
+        hasError={hasError}
+        onRetry={handleRetry}
+        searchTerm={searchTerm}
+        onResetSearch={handleResetSearch}
       />
 
       {/* Kontrol pagination, taruh di bawah BookList */}

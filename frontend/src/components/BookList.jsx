@@ -1,4 +1,4 @@
-function BookList({ books, onEdit, onDelete, isLoading }) {
+function BookList({ books, onEdit, onDelete, isLoading, hasError, onRetry, searchTerm, onResetSearch }) {
   if (isLoading) {
     return (
       <p style={{ textAlign: "center", color: "#3D3A34", paddin: "40px 0" }}>
@@ -7,8 +7,73 @@ function BookList({ books, onEdit, onDelete, isLoading }) {
     )
   }
 
+  if (hasError) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px 0", color: "#3D3A34" }}>
+        <p style={{ fontSize: "40px", margin: "0" }}>⚠</p>
+        <p style={{ fontWeight: "600", margin: "8px 0 4px" }}>
+          Gagal memuat data buku
+        </p>
+        <p style={{ fontSize: "14px", color: "#6b7280", margin: "0 0 16px" }}>
+          Periksa koneksi internet anda, atau coba lagi.
+        </p>
+        <button
+          onClick={onRetry}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#2F6F5E",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          Coba Lagi
+        </button>
+      </div>
+    );
+  }
+
   if (books.length === 0) {
-    return <p style={{ color: "#3D3A34" }}>Tidak ada data buku.</p>;
+    if (searchTerm) {
+      return (
+        <div style={{ textAlign: "center", padding: "40px 0", color: "#3D3A34" }}>
+          <p style={{ fontSize: "40px", margin: 0 }}>🔍</p>
+          <p style={{ fontWeight: 600, margin: "8px 0 4px" }}>
+            Tidak ada hasil untuk "{searchTerm}"
+          </p>
+          <p style={{ fontSize: "14px", color: "#6b7280", margin: "0 0 16px" }}>
+            Coba kata kunci lain, atau lihat semua buku.
+          </p>
+          <button
+            onClick={onResetSearch}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#2F6F5E",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            Hapus Pencarian
+          </button>
+        </div>
+      );
+    }
+
+    // Skenario 2: database memang belum ada buku sama sekali
+    return (
+      <div style={{ textAlign: "center", padding: "40px 0", color: "#3D3A34" }}>
+        <p style={{ fontSize: "40px", margin: 0 }}>📚</p>
+        <p style={{ fontWeight: 600, margin: "8px 0 4px" }}>Belum ada buku</p>
+        <p style={{ fontSize: "14px", color: "#6b7280" }}>
+          Tambahkan buku pertama Anda lewat form di atas.
+        </p>
+      </div>
+    );
   }
 
   return (

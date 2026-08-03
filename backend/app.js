@@ -5,6 +5,8 @@ require("./config/db");
 
 const bookRoutes = require("./routes/bookRoutes");
 
+const authRoutes = require("./routes/authRoutes")
+
 
 const app = express();
 
@@ -15,6 +17,7 @@ app.use(
 );
 app.use(express.json());
 app.use("/api/books", bookRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend Bookstore Sedang Berjalan");
