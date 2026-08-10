@@ -3,7 +3,7 @@ const router = express.Router();
 
 // PERBAIKAN MUTLAK: Ubah menjadi "middleware" (tanpa huruf s) agar sesuai folder Anda
 const validateBook = require("../middleware/validateBook");
-const verifyToken = require("../middleware/verifyToken");
+const { verifyToken, requireAdmin } = require("../middleware/verifyToken");
 const checkRole = require("../middleware/checkRole");
 
 const {

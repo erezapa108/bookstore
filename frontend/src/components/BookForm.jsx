@@ -28,7 +28,7 @@ const styles = {
   },
 };
 
-function BookForm({ editingBook, resetKey,onSubmit }) {
+function BookForm({ editingBook, resetKey, onSubmit }) {
   const [form, setForm] = useState(emptyForm);
   const isEditing = editingBook !== null; // dipakai berkali-kali, jadi disimpan sebagai variabel
 
@@ -53,7 +53,7 @@ function BookForm({ editingBook, resetKey,onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit?.(form);
   };
 
   return (

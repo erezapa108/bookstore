@@ -11,10 +11,13 @@ const authRoutes = require("./routes/authRoutes")
 const app = express();
 
 app.use(
-    cors({
-        origin: "http://localhost:5173",
-    })
+  cors({
+    origin: "http://localhost:5173", // sesuaikan port Vite
+    credentials: true,
+  }),
 );
+
+app.use(express.json());
 app.use(express.json());
 app.use("/api/books", bookRoutes);
 app.use("/api/auth", authRoutes);

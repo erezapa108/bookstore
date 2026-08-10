@@ -10,6 +10,8 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const homePath = user?.role === "admin" ? "/" : user ? "/shop" : "/";
+
   return (
     <nav
       style={{
@@ -23,13 +25,60 @@ const Navbar = () => {
       }}
     >
       <div style={{ fontSize: "19px", fontWeight: 700, color: "#2F6F5E" }}>
-        <Link to="/" style={{ color: "#2F6F5E", textDecoration: "none" }}>
-          📚 Bookstore
+        <Link
+          to={homePath}
+          style={{ color: "#2F6F5E", textDecoration: "none" }}
+        >
+          📚 Bookzone.id
         </Link>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "28px" }}>
-        
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        {user?.role === "user" && (
+          <>
+            <Link
+              to="/shop"
+              style={{
+                color: "#3D3A34",
+                textDecoration: "none",
+                fontSize: "15px",
+              }}
+            >
+              Shop
+            </Link>
+            <Link
+              to="/profile"
+              style={{
+                color: "#3D3A34",
+                textDecoration: "none",
+                fontSize: "15px",
+              }}
+            >
+              Profil
+            </Link>
+            <Link
+              to="/profile?tab=messages"
+              style={{
+                color: "#3D3A34",
+                textDecoration: "none",
+                fontSize: "15px",
+              }}
+            >
+              Pesan
+            </Link>
+            <Link
+              to="/profile?tab=notifications"
+              style={{
+                color: "#3D3A34",
+                textDecoration: "none",
+                fontSize: "15px",
+              }}
+            >
+              Notifikasi
+            </Link>
+          </>
+        )}
+
         <Link
           to="/about"
           style={{ color: "#3D3A34", textDecoration: "none", fontSize: "15px" }}
@@ -38,7 +87,6 @@ const Navbar = () => {
         </Link>
 
         {user ? (
-          // Sudah login -- tampilkan info singkat + tombol Logout
           <>
             <span style={{ fontSize: "14px", color: "#6b7280" }}>
               {user.role === "admin" ? "Admin" : "User"}
@@ -59,7 +107,6 @@ const Navbar = () => {
             </button>
           </>
         ) : (
-          // Belum login -- tampilkan tombol Login seperti sebelumnya
           <Link
             to="/login"
             style={{
